@@ -18,7 +18,7 @@ double dotProduct2d(point2d_t x, point2d_t y);
 point2d_t mat_vec2d(mat2x2_t mat, point2d_t x);
 double det_mat2x2(mat2x2_t mat);
 mat2x2_t inversed_mat2x2(mat2x2_t mat);
-bool checkPositiveDefMat2x2(mat2x2_t mat);
+bool isPositiveDefMat2x2(mat2x2_t mat);
 double fun(point2d_t x);
 point2d_t grad_fun(point2d_t x);
 mat2x2_t fun_Hessian_mat2x2();
@@ -27,10 +27,10 @@ point2d_t nonlinearConjugateGradientMethod(point2d_t x0, double epsilon, uint32_
 point2d_t methodNewtonRaphson(point2d_t x0, double epsilon, uint32_t maxIter);
 
 int32_t main() {
-	const point2d_t x0     = { -4.0, -2.5 };
+	const point2d_t x0     = { -4.0, -2.0 };
 	const double epsilon   = 1.0e-2;
 	const uint32_t maxIter = 100;
-	const point2d_t xmin   = methodNewtonRaphson(x0, epsilon, maxIter);
+	const point2d_t xmin   = nonlinearConjugateGradientMethod(x0, epsilon, maxIter);
 
 	printf("\nXmin = (%.2f, %.2f)\n", xmin.x, xmin.y);
 
@@ -54,7 +54,7 @@ inline double det_mat2x2(const mat2x2_t mat) {
 
 inline mat2x2_t inversed_mat2x2(const mat2x2_t mat) {
 	const double det_mat = det_mat2x2(mat);
-	if (det_mat == 0) {
+	if (det_mat == 0.0) {
 		printf("Determinant = 0!\n");
 		const mat2x2_t inv_mat2x2 = { 0, 0, 0, 0 };
 		return inv_mat2x2;
@@ -65,9 +65,9 @@ inline mat2x2_t inversed_mat2x2(const mat2x2_t mat) {
 	return inv_mat2x2;
 }
 
-inline bool checkPositiveDefMat2x2(const mat2x2_t mat) {
+inline bool isPositiveDefMat2x2(const mat2x2_t mat) {
 	// Sylvester's criterion
-	if (mat.a11 <= 0.0 && det_mat2x2(mat) <= 0) {
+	if (mat.a11 <= 0.0 || det_mat2x2(mat) <= 0.0) {
 		printf("No Positive-definite matrix!\n");
 		return false;
 	} else {
@@ -86,7 +86,7 @@ inline point2d_t grad_fun(const point2d_t x) {
 }
 
 inline mat2x2_t fun_Hessian_mat2x2() {
-	const mat2x2_t H = { 4, -4, -4, 8 };
+	const mat2x2_t H = { 4.0, -4.0, -4.0, 8.0 };
 	return H;
 }
 
@@ -97,13 +97,13 @@ inline double findT_phi(const point2d_t x, const point2d_t d) {
 	//	return 0;
 	//}
 	const double A = (d.x - 2.0 * d.y);
-	return (A * (2.0 * x.y - x.x) - (5.0 + x.x) * d.x) / (A * A + d.y * d.y);
+	return - (A * (x.x - 2.0 * x.y) + (5.0 + x.x) * d.x) / (A * A + d.y * d.y);
 }
 
 point2d_t nonlinearConjugateGradientMethod(const point2d_t x0, const double epsilon, const uint32_t maxIter) {
 	const double epsilon2 = epsilon * epsilon;
 	point2d_t xk1 = x0;
-	point2d_t xk, d, grad_fun_xk;
+	point2d_t xk, d;
 	double dot_grad_xk;
 	bool is_seq = false;
 	uint32_t k = 0;
@@ -140,7 +140,6 @@ point2d_t nonlinearConjugateGradientMethod(const point2d_t x0, const double epsi
 		} else {
 			is_seq = false;
 		}
-		grad_fun_xk = grad_fun_xk1;
 		dot_grad_xk = dot_grad_xk1;
 	}
 
@@ -164,7 +163,7 @@ point2d_t methodNewtonRaphson(const point2d_t x0, const double epsilon, const ui
 
 		const mat2x2_t H    = fun_Hessian_mat2x2();
 		const mat2x2_t invH = inversed_mat2x2(H);
-		if (checkPositiveDefMat2x2(invH)) {
+		if (isPositiveDefMat2x2(invH)) {
 			const point2d_t tmp = mat_vec2d(H, grad_fun_xk1);
 			d.x = -tmp.x;
 			d.y = -tmp.y;
