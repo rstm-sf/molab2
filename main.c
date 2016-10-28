@@ -97,7 +97,7 @@ inline double findT_phi(const point2d_t x, const point2d_t d) {
 	//	return 0;
 	//}
 	const double A = (d.x - 2.0 * d.y);
-	return - (A * (x.x - 2.0 * x.y) + (5.0 + x.x) * d.x) / (A * A + d.y * d.y);
+	return - (A * (x.x - 2.0 * x.y) + (5.0 + x.x) * d.x) / (A * A + d.x * d.x);
 }
 
 point2d_t nonlinearConjugateGradientMethod(const point2d_t x0, const double epsilon, const uint32_t maxIter) {
