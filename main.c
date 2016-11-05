@@ -193,7 +193,7 @@ point2d_t methodNewtonRaphson(const point2d_t x0, const double epsilon, const ui
 
 		const mat2x2_t H    = fun_Hessian_mat2x2();
 		const mat2x2_t invH = inversed_mat2x2(H);
-		const point2d_t d   = isPositiveDefMat2x2(invH) ? mat_vec2d(-1.0, H, grad_fun_xk1)
+		const point2d_t d   = isPositiveDefMat2x2(invH) ? mat_vec2d(-1.0, invH, grad_fun_xk1)
 		                                                : scalarmul_vec2d(-1.0, grad_fun_xk1);
 
 		const point2d_t xk = xk1;
